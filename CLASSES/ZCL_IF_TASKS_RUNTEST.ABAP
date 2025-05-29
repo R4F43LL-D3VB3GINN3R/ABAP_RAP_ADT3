@@ -7,24 +7,35 @@ CLASS zcl_if_tasks_runtest DEFINITION
 
     INTERFACES if_oo_adt_classrun.
 
+    "methods to self object
     METHODS constructor.
-
     METHODS set_tasks.
-
     METHODS get_data.
+    METHODS get_tasks
+      RETURNING VALUE(lt_tasks) TYPE ztt_tasks.
 
-    METHODS get_tasks.
+    "methods crud for cds
+    METHODS read_task.
 
+    "custom data
     DATA: gt_tasks TYPE ztt_tasks.
     DATA: gs_task TYPE zst_task.
     DATA: gs_result TYPE zst_result.
     DATA: go_projects TYPE REF TO zcl_if_project_runtest.
 
+    "cds data
+    DATA: gt_read_tasks TYPE TABLE FOR READ RESULT zdd_r_tasks,
+          gs_read_task  LIKE LINE OF gt_read_tasks.
+    DATA: gt_create_tasks TYPE TABLE FOR CREATE zdd_r_tasks,
+          gs_create_task  LIKE LINE OF gt_create_tasks.
+    DATA: gt_update_tasks TYPE TABLE FOR UPDATE zdd_r_tasks,
+          gs_update_task  LIKE LINE OF gt_update_tasks.
+    DATA: gt_delete_tasks TYPE TABLE FOR DELETE zdd_r_tasks,
+          gs_delete_task  LIKE LINE OF gt_delete_tasks.
+
   PROTECTED SECTION.
   PRIVATE SECTION.
 ENDCLASS.
-
-
 
 CLASS zcl_if_tasks_runtest IMPLEMENTATION.
 
@@ -34,6 +45,15 @@ CLASS zcl_if_tasks_runtest IMPLEMENTATION.
 
     out->write( | Operation Code: { gs_result-rc } | ).
     out->write( | Message: { gs_result-mensagem }  | ).
+
+  ENDMETHOD.
+
+  METHOD read_task.
+
+    READ ENTITIES OF zdd_r_tasks
+    ENTITY Tasks
+    ALL FIELDS WITH VALUE #( ( %tky-ID_Task = '72B8924CCC321FD08F918F8748FA199E' ) )
+    RESULT gt_read_tasks.
 
   ENDMETHOD.
 
@@ -79,9 +99,17 @@ CLASS zcl_if_tasks_runtest IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD get_data.
+
+    SELECT *
+    FROM ztable_task
+    INTO CORRESPONDING FIELDS OF TABLE @gt_tasks.
+
   ENDMETHOD.
 
   METHOD get_tasks.
+
+    lt_tasks = gt_tasks.
+
   ENDMETHOD.
 
 ENDCLASS.
