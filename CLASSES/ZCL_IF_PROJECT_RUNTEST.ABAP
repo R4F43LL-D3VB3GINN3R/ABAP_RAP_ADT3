@@ -19,6 +19,9 @@ CLASS zcl_if_project_runtest DEFINITION
     METHODS generate_uuid
       RETURNING VALUE(uuid) TYPE sysuuid_x16.
 
+    METHODS get_project_id
+      RETURNING VALUE(project_id) TYPE sysuuid_x16.
+
     DATA: gs_result TYPE zst_result.
     DATA: gt_projects TYPE ztt_projects.
 
@@ -100,6 +103,40 @@ CLASS zcl_if_project_runtest IMPLEMENTATION.
       CATCH cx_uuid_error.
         RETURN.
     ENDTRY.
+
+  ENDMETHOD.
+
+  METHOD get_project_id.
+
+    "table and table index
+    DATA(projects) = get_projects( ).
+    DATA lv_index TYPE i.
+
+     "generate randomic index for table
+    DATA seed TYPE i.
+    seed = cl_abap_random=>seed( ).
+
+    DATA: go_random_key TYPE REF TO cl_abap_random_int.
+    DATA(lv_max_range) = lines( projects ).
+    DATA(lv_min_range) = 1.
+
+    TRY.
+        CALL METHOD cl_abap_random_int=>create
+          EXPORTING
+            seed = seed
+            min  = lv_min_range
+            max  = lv_max_range
+          RECEIVING
+            prng = go_random_key.
+      CATCH cx_root INTO DATA(gx_error).
+        gs_result-rc       = 1.
+        gs_result-mensagem = |Erro: { gx_error->get_text( ) }|.
+    ENDTRY.
+    lv_index = go_random_key->get_next( ).
+
+    "send project id
+    READ TABLE projects INTO DATA(project) INDEX lv_index.
+    project_id = project-project_id.
 
   ENDMETHOD.
 
