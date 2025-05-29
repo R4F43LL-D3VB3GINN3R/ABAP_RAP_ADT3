@@ -19,6 +19,9 @@ CLASS zcl_if_tasks_runtest DEFINITION
 
     "methods crud for cds
     METHODS read_task.
+    METHODS create_task
+      IMPORTING
+        quantity TYPE i.
 
     "custom data
     DATA: gt_tasks TYPE ztt_tasks.
@@ -44,10 +47,56 @@ CLASS zcl_if_tasks_runtest IMPLEMENTATION.
 
   METHOD if_oo_adt_classrun~main.
 
-    read_task( ).
+*    read_task( ).
+    create_task( quantity = 100 ).
 
     out->write( | Operation Code: { gs_result-rc } | ).
     out->write( | Message: { gs_result-mensagem }  | ).
+
+  ENDMETHOD.
+
+  METHOD create_task.
+
+    CLEAR: gs_create_task,
+           gt_create_tasks,
+           gt_tasks.
+
+    "retrieve database to set the current index
+    get_data( ).
+    get_tasks( ).
+    DATA(total_lines) = lines( gt_tasks ).
+
+    "prepate table with tasks generated
+    DO quantity TIMES.
+      total_lines = total_lines + 1.
+      gs_create_task-%cid        = go_projects->generate_uuid( ).
+      gs_create_task-ID_Task     = gs_create_task-%cid.
+      gs_create_task-ID_Project  = go_projects->get_project_id( ).
+      gs_create_task-Description = | Task { total_lines } |.
+      gs_create_task-Done        = abap_false.
+
+      gs_create_task-%control-Description = if_abap_behv=>mk-on.
+      gs_create_task-%control-Done        = if_abap_behv=>mk-on.
+      APPEND gs_create_task TO gt_create_tasks.
+    ENDDO.
+
+    "create tasks into database
+    MODIFY ENTITIES OF zdd_r_tasks
+      ENTITY Tasks
+      CREATE FROM gt_create_tasks
+      FAILED   DATA(ls_create_failed)
+      REPORTED DATA(ls_create_reported)
+      MAPPED   DATA(ls_create_mapped).
+
+    IF ls_create_failed IS INITIAL.
+      COMMIT ENTITIES.
+      gs_result-rc       = 0.
+      gs_result-mensagem = 'Task Created by CDS.'.
+    ELSE.
+      ROLLBACK ENTITIES.
+      gs_result-rc       = 1.
+      gs_result-mensagem = 'Impossible to Create Tasks by CDS.'.
+    ENDIF.
 
   ENDMETHOD.
 
@@ -76,6 +125,8 @@ CLASS zcl_if_tasks_runtest IMPLEMENTATION.
   METHOD constructor.
 
     go_projects = NEW zcl_if_project_runtest( ).
+
+    get_data( ).
 
   ENDMETHOD.
 
@@ -107,6 +158,7 @@ CLASS zcl_if_tasks_runtest IMPLEMENTATION.
     IF lt_tasks IS NOT INITIAL.
       gs_result-rc       = '0'.
       gs_result-mensagem = 'Tasks generated with sucessfull.'.
+
     ELSE.
       gs_result-rc       = '1'.
       gs_result-mensagem = 'Impossible to generate tasks.'.
@@ -116,9 +168,12 @@ CLASS zcl_if_tasks_runtest IMPLEMENTATION.
 
   METHOD get_data.
 
+    CLEAR gt_tasks.
+
     SELECT *
     FROM ztable_task
     INTO CORRESPONDING FIELDS OF TABLE @gt_tasks.
+    SORT gt_tasks BY description ASCENDING.
 
   ENDMETHOD.
 
