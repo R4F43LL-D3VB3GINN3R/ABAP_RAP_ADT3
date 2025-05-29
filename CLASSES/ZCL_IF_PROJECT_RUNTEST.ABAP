@@ -93,7 +93,6 @@ CLASS zcl_if_project_runtest IMPLEMENTATION.
   METHOD generate_uuid.
 
     DATA: lo_system_uuid TYPE REF TO if_system_uuid.
-
     lo_system_uuid = cl_uuid_factory=>create_system_uuid( ).
 
     TRY.
