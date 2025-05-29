@@ -1,0 +1,23 @@
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'CDS for Tasks'
+@Metadata.ignorePropagatedAnnotations: true
+define root view entity ZDD_R_TASKS 
+as select from ztable_task
+association [0..1] to ZDD_PROJECTS as _Projects
+on ztable_task.project_id = _Projects.ProjectID
+{
+
+   @EndUserText.label: 'ID Project'
+   key project_id as ID_Project,
+   
+   @EndUserText.label: 'ID Task'
+   key task_id    as ID_Task, 
+   
+   @EndUserText.label: 'Description'
+   description    as Description, 
+   
+   @EndUserText.label: 'Done'
+   done           as Done,
+   
+   _Projects
+}
