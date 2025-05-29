@@ -1,0 +1,13 @@
+@EndUserText.label : 'Table for Tasks'
+@AbapCatalog.enhancement.category : #NOT_EXTENSIBLE
+@AbapCatalog.tableCategory : #TRANSPARENT
+@AbapCatalog.deliveryClass : #A
+@AbapCatalog.dataMaintenance : #RESTRICTED
+define table ztable_task {
+
+  key client     : abap.clnt not null;
+  key project_id : sysuuid_x16 not null;
+  description    : abap.char(100);
+  done           : abap_boolean;
+
+}
