@@ -1,4 +1,4 @@
-CLASS zcl_if_project_runtest DEFINITION
+CLASS zcl_if_tasks_runtest DEFINITION
   PUBLIC
   FINAL
   CREATE PUBLIC .
@@ -9,31 +9,29 @@ CLASS zcl_if_project_runtest DEFINITION
 
     METHODS constructor.
 
-    METHODS get_projects
-      RETURNING VALUE(lt_projects) TYPE ztt_projects.
-
-    METHODS set_projects.
+    METHODS set_tasks.
 
     METHODS get_data.
 
-    METHODS generate_uuid
-      RETURNING VALUE(uuid) TYPE sysuuid_x16.
+    METHODS get_tasks
+      RETURNING VALUE(lt_tasks) TYPE ztt_tasks.
 
-    METHODS get_project_id
-      RETURNING VALUE(project_id) TYPE sysuuid_x16.
-
+    DATA: gt_tasks TYPE ztt_tasks.
+    DATA: gs_task TYPE zst_task.
     DATA: gs_result TYPE zst_result.
-    DATA: gt_projects TYPE ztt_projects.
+    DATA: go_projects TYPE REF TO zcl_if_project_runtest.
 
   PROTECTED SECTION.
   PRIVATE SECTION.
 ENDCLASS.
 
-CLASS zcl_if_project_runtest IMPLEMENTATION.
+
+
+CLASS zcl_if_tasks_runtest IMPLEMENTATION.
 
   METHOD if_oo_adt_classrun~main.
 
-*    set_projects( ).
+    set_tasks( ).
 
     out->write( | Operation Code: { gs_result-rc } | ).
     out->write( | Message: { gs_result-mensagem }  | ).
@@ -42,101 +40,56 @@ CLASS zcl_if_project_runtest IMPLEMENTATION.
 
   METHOD constructor.
 
-    get_data( ).
+    go_projects = NEW zcl_if_project_runtest( ).
+
+  ENDMETHOD.
+
+  METHOD set_tasks.
+
+    "set number of projects
+    DATA: lt_index TYPE TABLE OF i.
+    DATA: lv_num TYPE i VALUE 1.
+    DO 25 TIMES.
+      APPEND lv_num TO lt_index.
+      lv_num = lv_num + 1.
+    ENDDO.
+
+    "fill database table with tasks
+    DATA: ls_task TYPE ztable_task.
+    DATA: lt_tasks TYPE TABLE OF ztable_task.
+
+    DELETE FROM ztable_task.
+    LOOP AT lt_index INTO DATA(index).
+      ls_task-project_id  = go_projects->get_project_id( ).
+      ls_task-task_id     = go_projects->generate_uuid( ).
+      ls_task-description = | Task { index } |.
+      ls_task-done        = abap_false.
+      APPEND ls_task TO lt_tasks.
+    ENDLOOP.
+    MODIFY ztable_task FROM TABLE @lt_tasks.
+
+    "output operations
+    IF lt_tasks IS NOT INITIAL.
+      gs_result-rc       = '0'.
+      gs_result-mensagem = 'Tasks generated with sucessfull.'.
+    ELSE.
+      gs_result-rc       = '1'.
+      gs_result-mensagem = 'Impossible to generate tasks.'.
+    ENDIF.
 
   ENDMETHOD.
 
   METHOD get_data.
 
-    CLEAR gt_projects.
-
     SELECT *
-    FROM ztable_projects
-    INTO CORRESPONDING FIELDS OF TABLE @gt_projects.
+    FROM ztable_task
+    INTO CORRESPONDING FIELDS OF TABLE @gt_tasks.
 
   ENDMETHOD.
 
-  METHOD get_projects.
+  METHOD get_tasks.
 
-    lt_projects = gt_projects.
-
-  ENDMETHOD.
-
-  METHOD set_projects.
-
-    DATA: ls_project TYPE ztable_projects.
-    DATA: lt_projects TYPE TABLE OF ztable_projects.
-
-    "set number of projects
-    DATA: lt_index TYPE TABLE OF i.
-    lt_index = VALUE #( ( 1 ) ( 2 ) ( 3 ) ( 4 ) ( 5 )
-                        ( 6 ) ( 7 ) ( 8 ) ( 9 ) ( 10 ) ).
-
-    "fill database table with projects
-    DELETE FROM ztable_projects.
-    LOOP AT lt_index INTO DATA(index).
-      ls_project-project_id = generate_uuid( ).
-      ls_project-name       = | project { index } |.
-      ls_project-status     = abap_false.
-      APPEND ls_project TO lt_projects.
-    ENDLOOP.
-    MODIFY ztable_projects FROM TABLE @lt_projects.
-
-    "output operations
-    IF lt_projects IS NOT INITIAL.
-      gs_result-rc       = '0'.
-      gs_result-mensagem = 'Projects generated with sucessfull.'.
-    ELSE.
-      gs_result-rc       = '1'.
-      gs_result-mensagem = 'Impossible to generate projects.'.
-    ENDIF.
-
-  ENDMETHOD.
-
-  METHOD generate_uuid.
-
-    DATA: lo_system_uuid TYPE REF TO if_system_uuid.
-    lo_system_uuid = cl_uuid_factory=>create_system_uuid( ).
-
-    TRY.
-        uuid = lo_system_uuid->create_uuid_x16( ).
-      CATCH cx_uuid_error.
-        RETURN.
-    ENDTRY.
-
-  ENDMETHOD.
-
-  METHOD get_project_id.
-
-    "table and table index
-    DATA(projects) = get_projects( ).
-    DATA lv_index TYPE i.
-
-     "generate randomic index for table
-    DATA seed TYPE i.
-    seed = cl_abap_random=>seed( ).
-
-    DATA: go_random_key TYPE REF TO cl_abap_random_int.
-    DATA(lv_max_range) = lines( projects ).
-    DATA(lv_min_range) = 1.
-
-    TRY.
-        CALL METHOD cl_abap_random_int=>create
-          EXPORTING
-            seed = seed
-            min  = lv_min_range
-            max  = lv_max_range
-          RECEIVING
-            prng = go_random_key.
-      CATCH cx_root INTO DATA(gx_error).
-        gs_result-rc       = 1.
-        gs_result-mensagem = |Erro: { gx_error->get_text( ) }|.
-    ENDTRY.
-    lv_index = go_random_key->get_next( ).
-
-    "send project id
-    READ TABLE projects INTO DATA(project) INDEX lv_index.
-    project_id = project-project_id.
+    lt_tasks = gt_tasks.
 
   ENDMETHOD.
 
