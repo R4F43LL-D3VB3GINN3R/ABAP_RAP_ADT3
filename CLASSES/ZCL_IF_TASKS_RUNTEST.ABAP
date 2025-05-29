@@ -41,7 +41,7 @@ CLASS zcl_if_tasks_runtest IMPLEMENTATION.
 
   METHOD if_oo_adt_classrun~main.
 
-    set_tasks( ).
+    read_task( ).
 
     out->write( | Operation Code: { gs_result-rc } | ).
     out->write( | Message: { gs_result-mensagem }  | ).
@@ -50,10 +50,23 @@ CLASS zcl_if_tasks_runtest IMPLEMENTATION.
 
   METHOD read_task.
 
+    CLEAR gt_read_tasks.
+
     READ ENTITIES OF zdd_r_tasks
     ENTITY Tasks
-    ALL FIELDS WITH VALUE #( ( %tky-ID_Task = '72B8924CCC321FD08F918F8748FA199E' ) )
+    ALL FIELDS WITH VALUE #( (
+     ID_Task    = '72B8924CCC321FD08F918F8748F7199E'
+     ID_Project = '72B8924CCC321FD08F90A7FD36E5399E' ) )
     RESULT gt_read_tasks.
+
+    "output operations
+    IF gt_read_tasks IS NOT INITIAL.
+      gs_result-rc       = 0.
+      gs_result-mensagem = 'Tasks Loaded.'.
+    ELSE.
+      gs_result-rc       = 1.
+      gs_result-mensagem = 'Impossible to Load Tasks.'.
+    ENDIF.
 
   ENDMETHOD.
 
