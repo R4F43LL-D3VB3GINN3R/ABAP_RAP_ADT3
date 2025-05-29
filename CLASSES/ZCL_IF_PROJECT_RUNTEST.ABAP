@@ -7,14 +7,15 @@ CLASS zcl_if_tasks_runtest DEFINITION
 
     INTERFACES if_oo_adt_classrun.
 
+    "methods to self object
     METHODS constructor.
-
     METHODS set_tasks.
-
     METHODS get_data.
-
     METHODS get_tasks
       RETURNING VALUE(lt_tasks) TYPE ztt_tasks.
+
+    "methods crud for cds
+    METHODS create_task.
 
     DATA: gt_tasks TYPE ztt_tasks.
     DATA: gs_task TYPE zst_task.
@@ -36,6 +37,10 @@ CLASS zcl_if_tasks_runtest IMPLEMENTATION.
     out->write( | Operation Code: { gs_result-rc } | ).
     out->write( | Message: { gs_result-mensagem }  | ).
 
+  ENDMETHOD.
+
+  METHOD create_task.
+    
   ENDMETHOD.
 
   METHOD constructor.
