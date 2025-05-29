@@ -13,6 +13,9 @@ CLASS zcl_if_tasks_runtest DEFINITION
     METHODS get_data.
     METHODS get_tasks
       RETURNING VALUE(lt_tasks) TYPE ztt_tasks.
+    METHODS get_task
+      IMPORTING task_id TYPE sysuuid_x16
+      EXPORTING ls_task TYPE zst_task.
 
     "methods crud for cds
     METHODS read_task.
@@ -122,6 +125,15 @@ CLASS zcl_if_tasks_runtest IMPLEMENTATION.
   METHOD get_tasks.
 
     lt_tasks = gt_tasks.
+
+  ENDMETHOD.
+
+  METHOD get_task.
+
+    READ TABLE gt_tasks INTO gs_task WITH KEY task_id = task_id.
+    IF sy-subrc EQ 0.
+      ls_task = gs_task.
+    ENDIF.
 
   ENDMETHOD.
 
