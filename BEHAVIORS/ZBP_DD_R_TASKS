@@ -1,0 +1,22 @@
+managed implementation in class zbp_dd_r_tasks unique;
+strict ( 1 );
+
+define behavior for ZDD_R_TASKS alias Tasks
+persistent table ztable_task
+lock master
+authorization master ( instance )
+//etag master <field_name>
+{
+  create;
+  update;
+  delete;
+  field ( numbering : managed, readonly ) ID_Project, ID_Task;
+
+  mapping for ztable_task corresponding
+    {
+        ID_Project  = project_id;
+        ID_Task     = task_id;
+        Description = description;
+        Done        = done;
+    }
+}
