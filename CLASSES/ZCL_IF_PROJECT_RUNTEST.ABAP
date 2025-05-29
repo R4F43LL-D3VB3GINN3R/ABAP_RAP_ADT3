@@ -7,15 +7,20 @@ CLASS zcl_if_project_runtest DEFINITION
 
     INTERFACES if_oo_adt_classrun.
 
-    METHODS set_projects
-      EXPORTING
-        result TYPE zst_result.
+    METHODS constructor.
+
+    METHODS get_projects
+      RETURNING VALUE(lt_projects) TYPE ztt_projects.
+
+    METHODS set_projects.
+
+    METHODS get_data.
 
     METHODS generate_uuid
       RETURNING VALUE(uuid) TYPE sysuuid_x16.
 
     DATA: gs_result TYPE zst_result.
-    DATA: gv_actnum TYPE i.
+    DATA: gt_projects TYPE ztt_projects.
 
   PROTECTED SECTION.
   PRIVATE SECTION.
@@ -25,7 +30,32 @@ CLASS zcl_if_project_runtest IMPLEMENTATION.
 
   METHOD if_oo_adt_classrun~main.
 
+*    set_projects( ).
 
+    out->write( | Operation Code: { gs_result-rc } | ).
+    out->write( | Message: { gs_result-mensagem }  | ).
+
+  ENDMETHOD.
+
+  METHOD constructor.
+
+    get_data( ).
+
+  ENDMETHOD.
+
+  METHOD get_data.
+
+    CLEAR gt_projects.
+
+    SELECT *
+    FROM ztable_projects
+    INTO CORRESPONDING FIELDS OF TABLE @gt_projects.
+
+  ENDMETHOD.
+
+  METHOD get_projects.
+
+    lt_projects = gt_projects.
 
   ENDMETHOD.
 
@@ -49,9 +79,13 @@ CLASS zcl_if_project_runtest IMPLEMENTATION.
     ENDLOOP.
     MODIFY ztable_projects FROM TABLE @lt_projects.
 
-    IF sy-subrc EQ 0.
-      result-rc       = '0'.
-      result-mensagem = 'Projects gerated with sucessfull.'.
+    "output operations
+    IF lt_projects IS NOT INITIAL.
+      gs_result-rc       = '0'.
+      gs_result-mensagem = 'Projects generated with sucessfull.'.
+    ELSE.
+      gs_result-rc       = '1'.
+      gs_result-mensagem = 'Impossible to generate projects.'.
     ENDIF.
 
   ENDMETHOD.
