@@ -32,7 +32,7 @@ CLASS lhc_Tasks IMPLEMENTATION.
           SET FIELDS WITH VALUE #( (
             %tky-Id_Task    = ls_task-ID_Task
             %tky-ID_Project = ls_task-ID_Project
-            Done         = abap_true
+            Done            = abap_true
           ) ).
         ENDIF.
       ENDLOOP.
