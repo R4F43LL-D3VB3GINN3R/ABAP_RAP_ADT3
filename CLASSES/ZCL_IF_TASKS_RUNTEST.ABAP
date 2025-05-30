@@ -22,6 +22,10 @@ CLASS zcl_if_tasks_runtest DEFINITION
     METHODS create_task
       IMPORTING
         quantity TYPE i.
+    METHODS update_task
+      IMPORTING
+        task_uuid    TYPE sysuuid_x16
+        project_uuid TYPE sysuuid_x16.
 
     "custom data
     DATA: gt_tasks TYPE ztt_tasks.
@@ -47,11 +51,41 @@ CLASS zcl_if_tasks_runtest IMPLEMENTATION.
 
   METHOD if_oo_adt_classrun~main.
 
+*    set_tasks( ).
 *    read_task( ).
-    create_task( quantity = 100 ).
+*    create_task( quantity = 100 ).
+    update_task( task_uuid    = '3EAC609FD7601FD08FA5F21E7715BA0E'
+                 project_uuid = '72B8924CCC321FD08F90A7FD36E5999E' ).
 
     out->write( | Operation Code: { gs_result-rc } | ).
     out->write( | Message: { gs_result-mensagem }  | ).
+
+  ENDMETHOD.
+
+  METHOD update_task.
+
+   MODIFY ENTITIES OF zdd_r_tasks
+   ENTITY Tasks
+   UPDATE
+   SET FIELDS WITH VALUE #( (
+       %tky-ID_Task    = task_uuid
+       %tky-ID_Project = project_uuid
+       Description     = 'Task Updated'
+       Done            = abap_false
+   ) )
+   FAILED   DATA(ls_update_failed)
+   REPORTED DATA(ls_update_reported)
+   MAPPED   DATA(ls_update_mapped).
+
+    IF ls_update_failed IS INITIAL.
+      COMMIT ENTITIES.
+      gs_result-rc       = 0.
+      gs_result-mensagem = 'Task Updated by CDS.'.
+    ELSE.
+      ROLLBACK ENTITIES.
+      gs_result-rc       = 1.
+      gs_result-mensagem = 'Impossible to Update Tasks by CDS.'.
+    ENDIF.
 
   ENDMETHOD.
 
