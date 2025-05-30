@@ -65,10 +65,15 @@ CLASS zcl_if_tasks_runtest IMPLEMENTATION.
 *      project_uuid = '72B8924CCC321FD08F90A7FD36E5999E'
 *    ).
 
-*    create_task( quantity = 100 ).
+*    create_task( quantity = 1 ).
 
 *    update_task( task_uuid    = '3EAC609FD7601FD08FA5F21E7715BA0E'
 *                 project_uuid = '72B8924CCC321FD08F90A7FD36E5999E' ).
+
+*    delete_task(
+*      task_uuid    = '3EAC609FD7601FD08FA94DE1CFAEFA0F'
+*      project_uuid = '3EAC609FD7601FD08FA94DE1CFAEDA0F'
+*    ).
 
     out->write( | Operation Code: { gs_result-rc } | ).
     out->write( | Message: { gs_result-mensagem }  | ).
