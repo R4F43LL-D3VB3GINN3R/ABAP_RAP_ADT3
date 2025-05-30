@@ -107,7 +107,7 @@ CLASS zcl_if_tasks_runtest IMPLEMENTATION.
     ELSE.
       "verification for project opened
       IF project-status EQ abap_true.
-        gs_result-rc = 1.
+        gs_result-rc       = 1.
         gs_result-mensagem = | Project { project-project_id } is already closed |.
         RETURN.
       ELSE.
