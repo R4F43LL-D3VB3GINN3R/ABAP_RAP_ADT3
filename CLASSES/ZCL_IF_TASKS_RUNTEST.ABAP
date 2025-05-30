@@ -93,22 +93,43 @@ CLASS zcl_if_tasks_runtest IMPLEMENTATION.
 
   METHOD close_task.
 
-    MODIFY ENTITIES OF zdd_r_tasks
-    ENTITY Tasks
-    EXECUTE close_task FROM VALUE #( ( %tky-ID_Task    = task_uuid
-                                       %tky-ID_Project = project_uuid ) )
-    FAILED   DATA(ls_action_failed)
-    REPORTED DATA(ls_action_reported)
-    MAPPED   DATA(ls_action_mapped).
+    go_projects->get_project(
+      EXPORTING
+        project_id = task_uuid
+      IMPORTING
+        ls_project = DATA(project)
+        ls_result  = gs_result
+    ).
 
-    IF ls_action_failed IS INITIAL.
-      COMMIT ENTITIES.
-      gs_result-rc       = 0.
-      gs_result-mensagem = 'Task Closed by CDS.'.
+    "verification for empty content
+    IF gs_result-rc EQ 1.
+      RETURN.
     ELSE.
-      ROLLBACK ENTITIES.
-      gs_result-rc       = 1.
-      gs_result-mensagem = |'Not possible to Close Task { task_uuid }.'|.
+      "verification for project opened
+      IF project-status EQ abap_true.
+        gs_result-rc = 1.
+        gs_result-mensagem = | Project { project-project_id } is already closed |.
+        RETURN.
+      ELSE.
+        "close task
+        MODIFY ENTITIES OF zdd_r_tasks
+        ENTITY Tasks
+        EXECUTE close_task FROM VALUE #( ( %tky-ID_Task    = task_uuid
+                                           %tky-ID_Project = project_uuid ) )
+        FAILED   DATA(ls_action_failed)
+        REPORTED DATA(ls_action_reported)
+        MAPPED   DATA(ls_action_mapped).
+
+        IF ls_action_failed IS INITIAL.
+          COMMIT ENTITIES.
+          gs_result-rc       = 0.
+          gs_result-mensagem = 'Task Closed by CDS.'.
+        ELSE.
+          ROLLBACK ENTITIES.
+          gs_result-rc       = 1.
+          gs_result-mensagem = |'Not possible to Close Task { task_uuid }.'|.
+        ENDIF.
+      ENDIF.
     ENDIF.
 
   ENDMETHOD.
