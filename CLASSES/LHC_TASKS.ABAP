@@ -20,20 +20,25 @@ CLASS lhc_Tasks IMPLEMENTATION.
     ALL FIELDS WITH CORRESPONDING #( keys )
     RESULT DATA(lt_tasks).
 
-    "close task if the task is open
-    LOOP AT lt_tasks INTO DATA(ls_task).
-      IF ls_task-Done = abap_true.
-        RETURN.
-      ELSE.
-        MODIFY ENTITIES OF zdd_r_tasks IN LOCAL MODE
-        ENTITY Tasks
-        UPDATE
-        SET FIELDS WITH VALUE #( (
-          %tky-Id_Task = ls_task-ID_Task
-          Done         = abap_true
-        ) ).
-      ENDIF.
-    ENDLOOP.
+    IF lt_tasks IS NOT INITIAL.
+      "close task if the task is open
+      LOOP AT lt_tasks INTO DATA(ls_task).
+        IF ls_task-Done = abap_true.
+          RETURN.
+        ELSE.
+          MODIFY ENTITIES OF zdd_r_tasks IN LOCAL MODE
+          ENTITY Tasks
+          UPDATE
+          SET FIELDS WITH VALUE #( (
+            %tky-Id_Task    = ls_task-ID_Task
+            %tky-ID_Project = ls_task-ID_Project
+            Done         = abap_true
+          ) ).
+        ENDIF.
+      ENDLOOP.
+    ELSE.
+      RETURN.
+    ENDIF.
 
   ENDMETHOD.
 
