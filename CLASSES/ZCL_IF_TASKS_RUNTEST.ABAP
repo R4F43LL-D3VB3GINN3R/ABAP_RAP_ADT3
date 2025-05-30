@@ -34,6 +34,12 @@ CLASS zcl_if_tasks_runtest DEFINITION
         task_uuid    TYPE sysuuid_x16
         project_uuid TYPE sysuuid_x16.
 
+    "actions
+    METHODS close_task
+      IMPORTING
+        task_uuid    TYPE sysuuid_x16
+        project_uuid TYPE sysuuid_x16.
+
     "custom data
     DATA: gt_tasks TYPE ztt_tasks.
     DATA: gs_task TYPE zst_task.
@@ -75,8 +81,35 @@ CLASS zcl_if_tasks_runtest IMPLEMENTATION.
 *      project_uuid = '3EAC609FD7601FD08FA94DE1CFAEDA0F'
 *    ).
 
+    close_task(
+      task_uuid    = '3EAC609FD7601FD08FA5F21E7715DA0E'
+      project_uuid = '72B8924CCC321FD08F90A7FD36E5199E'
+    ).
+
     out->write( | Operation Code: { gs_result-rc } | ).
     out->write( | Message: { gs_result-mensagem }  | ).
+
+  ENDMETHOD.
+
+  METHOD close_task.
+
+    MODIFY ENTITIES OF zdd_r_tasks
+    ENTITY Tasks
+    EXECUTE close_task FROM VALUE #( ( %tky-ID_Task    = task_uuid
+                                       %tky-ID_Project = project_uuid ) )
+    FAILED   DATA(ls_action_failed)
+    REPORTED DATA(ls_action_reported)
+    MAPPED   DATA(ls_action_mapped).
+
+    IF ls_action_failed IS INITIAL.
+      COMMIT ENTITIES.
+      gs_result-rc       = 0.
+      gs_result-mensagem = 'Task Closed by CDS.'.
+    ELSE.
+      ROLLBACK ENTITIES.
+      gs_result-rc       = 1.
+      gs_result-mensagem = |'Not possible to Close Task { task_uuid }.'|.
+    ENDIF.
 
   ENDMETHOD.
 
