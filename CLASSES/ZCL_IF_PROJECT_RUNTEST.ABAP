@@ -5,7 +5,7 @@ CLASS zcl_if_project_runtest DEFINITION
 
   PUBLIC SECTION.
 
-    INTERFACES if_oo_adt_classrun .
+    INTERFACES if_oo_adt_classrun  .
 
     METHODS constructor.
 
