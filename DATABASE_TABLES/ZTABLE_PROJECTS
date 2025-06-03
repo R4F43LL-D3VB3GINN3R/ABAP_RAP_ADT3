@@ -8,6 +8,9 @@ define table ztable_projects {
   key client     : abap.clnt not null;
   key project_id : sysuuid_x16 not null;
   name           : abap.char(50);
-  status         : abap_boolean;
+  area           : abap.char(50);
+  status         : abap.char(1);
+  creationdate   : abap.dats;
+  closedate      : abap.dats;
 
 }
