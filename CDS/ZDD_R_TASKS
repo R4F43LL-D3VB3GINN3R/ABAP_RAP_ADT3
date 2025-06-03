@@ -17,7 +17,32 @@ on ztable_task.project_id = _Projects.ProjectID
    description    as Description, 
    
    @EndUserText.label: 'Done'
-   done           as Done,
+   done           as Done, 
+   
+   @EndUserText.label: 'Type'
+   typetask       as TypeTask,
+   
+   @EndUserText.label: 'Priority'
+   priority       as Priority,
+   
+   @EndUserText.label: 'Due Date'
+   due_date       as DueDate,
+   
+   @Semantics.user.createdBy: true
+   @EndUserText.label: 'Created By'
+   createdby      as CreatedBy,
+   
+   @Semantics.user.lastChangedBy: true
+   @EndUserText.label: 'Closed By'
+   closedby       as ClosedBy,
+   
+   @Semantics.systemDateTime.createdAt: true
+   @EndUserText.label: 'Creation Date'
+   creationdate   as CreationDate,
+   
+   @Semantics.systemDateTime.lastChangedAt: true
+   @EndUserText.label: 'Close Date'
+   closedate      as CloseDate,
    
    _Projects
 }
