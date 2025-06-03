@@ -10,7 +10,11 @@ authorization master ( instance )
   create;
   update;
   delete;
-  field ( numbering : managed, readonly ) ID_Project, ID_Task;
+
+  field ( readonly : update ) ID_Project, ID_Task;
+
+  action close_task;
+  action reopen_task;
 
   mapping for ztable_task corresponding
     {
