@@ -5,7 +5,7 @@ CLASS zcl_if_project_runtest DEFINITION
 
   PUBLIC SECTION.
 
-    INTERFACES if_oo_adt_classrun  .
+    INTERFACES if_oo_adt_classrun.
 
     METHODS constructor.
 
@@ -41,7 +41,7 @@ CLASS zcl_if_project_runtest IMPLEMENTATION.
 
   METHOD if_oo_adt_classrun~main.
 
-*    set_projects( ).
+    set_projects( ).
 
     out->write( | Operation Code: { gs_result-rc } | ).
     out->write( | Message: { gs_result-mensagem }  | ).
@@ -78,12 +78,12 @@ CLASS zcl_if_project_runtest IMPLEMENTATION.
     READ TABLE projects INTO DATA(project) WITH KEY project_id = project_id.
     IF sy-subrc EQ 0.
       ls_result-rc       = 0.
-      ls_result-mensagem = | Produto { project_id } recebido |.
+      ls_result-mensagem = | Project { project_id } received |.
       ls_project         = project.
       gs_result          = ls_result.
     ELSE.
       ls_result-rc       = 1.
-      ls_result-mensagem = | Não foi possível encontra um projeto com id { project_id } |.
+      ls_result-mensagem = | Project { project_id } not found |.
       gs_result          = ls_result.
     ENDIF.
 
@@ -102,9 +102,11 @@ CLASS zcl_if_project_runtest IMPLEMENTATION.
     "fill database table with projects
     DELETE FROM ztable_projects.
     LOOP AT lt_index INTO DATA(index).
-      ls_project-project_id = generate_uuid( ).
-      ls_project-name       = | project { index } |.
-      ls_project-status     = abap_false.
+      ls_project-project_id   = generate_uuid( ).
+      ls_project-name         = | project { index } |.
+      ls_project-area         = | area { index } |.
+      ls_project-status       = abap_false.
+      ls_project-creationdate = cl_abap_context_info=>get_system_date( ).
       APPEND ls_project TO lt_projects.
     ENDLOOP.
     MODIFY ztable_projects FROM TABLE @lt_projects.
