@@ -7,7 +7,15 @@ define table ztable_task {
 
   key client     : abap.clnt not null;
   key project_id : sysuuid_x16 not null;
+  key task_id    : sysuuid_x16 not null;
   description    : abap.char(100);
-  done           : abap_boolean;
+  done           : abap.char(1);
+  typetask       : abap.char(50);
+  priority       : abap.char(50);
+  due_date       : abap.dats;
+  createdby      : syuname;
+  closedby       : syuname;
+  creationdate   : abap.dats;
+  closedate      : abap.dats;
 
 }
