@@ -39,6 +39,10 @@ CLASS zcl_if_tasks_runtest DEFINITION
       IMPORTING
         task_uuid    TYPE sysuuid_x16
         project_uuid TYPE sysuuid_x16.
+    METHODS reopen_task
+      IMPORTING
+        task_uuid    TYPE sysuuid_x16
+        project_uuid TYPE sysuuid_x16.
 
     "custom data
     DATA: gt_tasks TYPE ztt_tasks.
@@ -81,9 +85,14 @@ CLASS zcl_if_tasks_runtest IMPLEMENTATION.
 *      project_uuid = '3EAC609FD7601FD08FA94DE1CFAEDA0F'
 *    ).
 
-    close_task(
-      task_uuid    = '3EAC609FD7601FD08FA5F21E7715DA0E'
-      project_uuid = '72B8924CCC321FD08F90A7FD36E5199E'
+*    close_task(
+*      task_uuid    = '3EAC609FD7601FD08FA5F21E7715FA0E'
+*      project_uuid = '72B8924CCC321FD08F90A7FD36E4B99E'
+*    ).
+
+    reopen_task(
+       task_uuid    = 'E65FD4A88F001FE09093A342AD56886A'
+       project_uuid = '72B8924CCC321FD08F90A7FD36E4F99E'
     ).
 
     out->write( | Operation Code: { gs_result-rc } | ).
@@ -91,11 +100,54 @@ CLASS zcl_if_tasks_runtest IMPLEMENTATION.
 
   ENDMETHOD.
 
+  METHOD reopen_task.
+
+    go_projects->get_project(
+      EXPORTING
+        project_id = project_uuid
+      IMPORTING
+        ls_project = DATA(project)
+        ls_result  = gs_result
+    ).
+
+    "verification for empty content
+    IF gs_result-rc EQ 1.
+      RETURN.
+    ELSE.
+      "verification for project opened
+      IF project-status EQ abap_true.
+        gs_result-rc       = 1.
+        gs_result-mensagem = | Project { project-project_id } is already closed |.
+        RETURN.
+      ELSE.
+        "close task
+        MODIFY ENTITIES OF zdd_r_tasks
+        ENTITY Tasks
+        EXECUTE reopen_task FROM VALUE #( ( %tky-ID_Task    = task_uuid
+                                            %tky-ID_Project = project_uuid ) )
+        FAILED   DATA(ls_action_failed)
+        REPORTED DATA(ls_action_reported)
+        MAPPED   DATA(ls_action_mapped).
+
+        IF ls_action_failed IS INITIAL.
+          COMMIT ENTITIES.
+          gs_result-rc       = 0.
+          gs_result-mensagem = |'Task { task_uuid } was opened.'|.
+        ELSE.
+          ROLLBACK ENTITIES.
+          gs_result-rc       = 1.
+          gs_result-mensagem = |'Not possible to Open Task { task_uuid }.'|.
+        ENDIF.
+      ENDIF.
+    ENDIF.
+
+  ENDMETHOD.
+
   METHOD close_task.
 
     go_projects->get_project(
       EXPORTING
-        project_id = task_uuid
+        project_id = project_uuid
       IMPORTING
         ls_project = DATA(project)
         ls_result  = gs_result
@@ -201,8 +253,10 @@ CLASS zcl_if_tasks_runtest IMPLEMENTATION.
       gs_create_task-ID_Task     = gs_create_task-%cid.
       gs_create_task-ID_Project  = go_projects->get_project_id( ).
       gs_create_task-Description = | Task { total_lines } |.
-      gs_create_task-Done        = abap_false.
+      gs_create_task-Done        = abap_true.
 
+      gs_create_task-%control-ID_Task     = if_abap_behv=>mk-on.
+      gs_create_task-%control-ID_Project  = if_abap_behv=>mk-on.
       gs_create_task-%control-Description = if_abap_behv=>mk-on.
       gs_create_task-%control-Done        = if_abap_behv=>mk-on.
       APPEND gs_create_task TO gt_create_tasks.
