@@ -41,7 +41,7 @@ CLASS zcl_if_project_runtest IMPLEMENTATION.
 
   METHOD if_oo_adt_classrun~main.
 
-    set_projects( ).
+*    set_projects( ).
 
     out->write( | Operation Code: { gs_result-rc } | ).
     out->write( | Message: { gs_result-mensagem }  | ).
