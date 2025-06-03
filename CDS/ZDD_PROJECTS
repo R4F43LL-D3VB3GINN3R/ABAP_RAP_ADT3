@@ -1,23 +1,29 @@
+@AbapCatalog.viewEnhancementCategory: [#NONE]
 @AccessControl.authorizationCheck: #NOT_REQUIRED
-@EndUserText.label: 'CDS for Tasks'
+@EndUserText.label: 'CDS for Projects'
 @Metadata.ignorePropagatedAnnotations: true
-define root view entity ZDD_R_TASKS 
-as select from ztable_task
-association [0..1] to ZDD_PROJECTS as _Projects
-on ztable_task.project_id = _Projects.ProjectID
+@ObjectModel.usageType:{
+    serviceQuality: #X,
+    sizeCategory: #S,
+    dataClass: #MIXED
+}
+define view entity ZDD_PROJECTS as select from ztable_projects
 {
-
-   @EndUserText.label: 'ID Project'
-   key project_id as ID_Project,
-   
-   @EndUserText.label: 'ID Task'
-   key task_id    as ID_Task, 
-   
-   @EndUserText.label: 'Description'
-   description    as Description, 
-   
-   @EndUserText.label: 'Done'
-   done           as Done,
-   
-   _Projects
+    @EndUserText.label: 'ID Project'
+    key project_id as ProjectID,
+    
+    @EndUserText.label: 'Name'
+    name           as Name,
+    
+    @EndUserText.label: 'Area'
+    area           as Area,
+    
+    @EndUserText.label: 'Status'
+    status         as Status,
+    
+    @EndUserText.label: 'Creation Date'
+    creationdate   as CreationDate,
+    
+    @EndUserText.label: 'Close Date'
+    closedate      as CloseDate
 }
