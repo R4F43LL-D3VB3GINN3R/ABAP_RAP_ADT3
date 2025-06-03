@@ -5,12 +5,37 @@ CLASS lhc_Tasks DEFINITION INHERITING FROM cl_abap_behavior_handler.
       IMPORTING keys REQUEST requested_authorizations FOR Tasks RESULT result.
     METHODS close_task FOR MODIFY
       IMPORTING keys FOR ACTION tasks~close_task.
+    METHODS reopen_task FOR MODIFY
+      IMPORTING keys FOR ACTION tasks~reopen_task.
 
 ENDCLASS.
 
 CLASS lhc_Tasks IMPLEMENTATION.
 
   METHOD get_instance_authorizations.
+  ENDMETHOD.
+
+  METHOD reopen_task.
+
+    READ ENTITY IN LOCAL MODE zdd_r_tasks
+      ALL FIELDS WITH CORRESPONDING #( keys )
+      RESULT DATA(lt_tasks).
+
+    READ TABLE lt_tasks INTO DATA(ls_task) INDEX 1.
+    IF sy-subrc = 0.
+      MODIFY ENTITIES OF zdd_r_tasks IN LOCAL MODE
+      ENTITY Tasks
+      UPDATE
+      SET FIELDS WITH VALUE #( (
+        %tky-Id_Task         = ls_task-ID_Task
+        %tky-ID_Project      = ls_task-ID_Project
+        Done                 = abap_false
+        Description          = |Task reopened at { sy-datum } { sy-uzeit }|
+        %control-Done        = if_abap_behv=>mk-on
+        %control-Description = if_abap_behv=>mk-on
+      ) ).
+    ENDIF.
+
   ENDMETHOD.
 
   METHOD close_task.
