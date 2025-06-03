@@ -1,0 +1,17 @@
+@EndUserText.label : 'Structure for Task'
+@AbapCatalog.enhancement.category : #NOT_EXTENSIBLE
+define structure zst_task {
+
+  project_id   : sysuuid_x16;
+  task_id      : sysuuid_x16;
+  description  : abap.char(100);
+  done         : abap_boolean;
+  typetask     : abap.char(50);
+  priority     : abap.char(50);
+  due_date     : abap.dats;
+  createdby    : syuname;
+  closedby     : syuname;
+  creationdate : timestamp;
+  closedate    : timestamp;
+
+}
