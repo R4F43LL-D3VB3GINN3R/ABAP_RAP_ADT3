@@ -75,7 +75,7 @@ CLASS zcl_if_tasks_runtest IMPLEMENTATION.
 *      project_uuid = '72B8924CCC321FD08F90A7FD36E5999E'
 *    ).
 
-    create_task( quantity = 1 ).
+*    create_task( quantity = 1 ).
 
 *    update_task( task_uuid    = '3EAC609FD7601FD08FA5F21E7715BA0E'
 *                 project_uuid = '72B8924CCC321FD08F90A7FD36E5999E' ).
@@ -85,14 +85,14 @@ CLASS zcl_if_tasks_runtest IMPLEMENTATION.
 *      project_uuid = '3EAC609FD7601FD08FA94DE1CFAEDA0F'
 *    ).
 
-*    close_task(
-*      task_uuid    = '3EAC609FD7601FD08FA5F21E7715FA0E'
-*      project_uuid = '72B8924CCC321FD08F90A7FD36E4B99E'
-*    ).
+    close_task(
+      task_uuid    = 'A28FEB2620571FD090A6678E90C43A65'
+      project_uuid = 'E65FD4A88F001FE09094879EBE65686A'
+    ).
 
 *    reopen_task(
-*       task_uuid    = 'E65FD4A88F001FE09093A342AD56886A'
-*       project_uuid = '72B8924CCC321FD08F90A7FD36E4F99E'
+*       task_uuid    = 'A28FEB2620571FD090A6678E90C43A65'
+*       project_uuid = 'E65FD4A88F001FE09094879EBE65686A'
 *    ).
 
     DATA(lv_time) = cl_abap_context_info=>get_system_time( ).
@@ -160,7 +160,7 @@ CLASS zcl_if_tasks_runtest IMPLEMENTATION.
       RETURN.
     ELSE.
       "verification for project opened
-      IF project-status EQ abap_true.
+      IF project-status EQ 'X'.
         gs_result-rc       = 1.
         gs_result-mensagem = | Project { project-project_id } is already closed |.
         RETURN.
@@ -219,7 +219,7 @@ CLASS zcl_if_tasks_runtest IMPLEMENTATION.
        %tky-ID_Task    = task_uuid
        %tky-ID_Project = project_uuid
        Description     = 'Task Updated'
-       Done            = abap_false
+       Done            = '-'
        TypeTask        = 'Reparation'
        Priority        = 'High'
        DueDate         = '20250707'
@@ -262,7 +262,7 @@ CLASS zcl_if_tasks_runtest IMPLEMENTATION.
       gs_create_task-ID_Task      = gs_create_task-%cid.
       gs_create_task-ID_Project   = go_projects->get_project_id( ).
       gs_create_task-Description  = | Task { total_lines } |.
-      gs_create_task-Done         = ''.
+      gs_create_task-Done         = '-'.
       gs_create_task-TypeTask     = 'Reparation'.
       gs_create_task-Priority     = 'Low'.
       gs_create_task-DueDate      = '20251231'.
@@ -354,7 +354,7 @@ CLASS zcl_if_tasks_runtest IMPLEMENTATION.
       ls_task-project_id   = go_projects->get_project_id( ).
       ls_task-task_id      = go_projects->generate_uuid( ).
       ls_task-description  = | Task { index } |.
-      ls_task-done         = abap_false.
+      ls_task-done         = '-'.
       ls_task-typetask     = 'Reparation'.
       ls_task-priority     = 'Low'.
       ls_task-due_date     = '20251231'.
