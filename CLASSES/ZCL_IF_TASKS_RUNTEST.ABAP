@@ -75,7 +75,7 @@ CLASS zcl_if_tasks_runtest IMPLEMENTATION.
 *      project_uuid = '72B8924CCC321FD08F90A7FD36E5999E'
 *    ).
 
-*    create_task( quantity = 1 ).
+    create_task( quantity = 1 ).
 
 *    update_task( task_uuid    = '3EAC609FD7601FD08FA5F21E7715BA0E'
 *                 project_uuid = '72B8924CCC321FD08F90A7FD36E5999E' ).
@@ -90,13 +90,15 @@ CLASS zcl_if_tasks_runtest IMPLEMENTATION.
 *      project_uuid = '72B8924CCC321FD08F90A7FD36E4B99E'
 *    ).
 
-    reopen_task(
-       task_uuid    = 'E65FD4A88F001FE09093A342AD56886A'
-       project_uuid = '72B8924CCC321FD08F90A7FD36E4F99E'
-    ).
+*    reopen_task(
+*       task_uuid    = 'E65FD4A88F001FE09093A342AD56886A'
+*       project_uuid = '72B8924CCC321FD08F90A7FD36E4F99E'
+*    ).
 
+    DATA(lv_time) = cl_abap_context_info=>get_system_time( ).
     out->write( | Operation Code: { gs_result-rc } | ).
     out->write( | Message: { gs_result-mensagem }  | ).
+    out->write( | Time: { lv_time }| ).
 
   ENDMETHOD.
 
@@ -218,6 +220,13 @@ CLASS zcl_if_tasks_runtest IMPLEMENTATION.
        %tky-ID_Project = project_uuid
        Description     = 'Task Updated'
        Done            = abap_false
+       TypeTask        = 'Reparation'
+       Priority        = 'High'
+       DueDate         = '20250707'
+       CreatedBy       = cl_abap_context_info=>get_user_technical_name( )
+*       ClosedBy        = ''
+       CreationDate    = cl_abap_context_info=>get_system_date( )
+*       CloseDate       = ''
     ) )
     FAILED   DATA(ls_update_failed)
     REPORTED DATA(ls_update_reported)
@@ -249,16 +258,30 @@ CLASS zcl_if_tasks_runtest IMPLEMENTATION.
     "prepate table with tasks generated
     DO quantity TIMES.
       total_lines = total_lines + 1.
-      gs_create_task-%cid        = go_projects->generate_uuid( ).
-      gs_create_task-ID_Task     = gs_create_task-%cid.
-      gs_create_task-ID_Project  = go_projects->get_project_id( ).
-      gs_create_task-Description = | Task { total_lines } |.
-      gs_create_task-Done        = abap_true.
+      gs_create_task-%cid         = go_projects->generate_uuid( ).
+      gs_create_task-ID_Task      = gs_create_task-%cid.
+      gs_create_task-ID_Project   = go_projects->get_project_id( ).
+      gs_create_task-Description  = | Task { total_lines } |.
+      gs_create_task-Done         = ''.
+      gs_create_task-TypeTask     = 'Reparation'.
+      gs_create_task-Priority     = 'Low'.
+      gs_create_task-DueDate      = '20251231'.
+      gs_create_task-CreatedBy    = cl_abap_context_info=>get_user_technical_name( ).
+      gs_create_task-ClosedBy     = ''.
+      gs_create_task-CreationDate = cl_abap_context_info=>get_system_date( ).
+      gs_create_task-CloseDate    = '00000000'.
 
-      gs_create_task-%control-ID_Task     = if_abap_behv=>mk-on.
-      gs_create_task-%control-ID_Project  = if_abap_behv=>mk-on.
-      gs_create_task-%control-Description = if_abap_behv=>mk-on.
-      gs_create_task-%control-Done        = if_abap_behv=>mk-on.
+      gs_create_task-%control-ID_Task      = if_abap_behv=>mk-on.
+      gs_create_task-%control-ID_Project   = if_abap_behv=>mk-on.
+      gs_create_task-%control-Description  = if_abap_behv=>mk-on.
+      gs_create_task-%control-Done         = if_abap_behv=>mk-on.
+      gs_create_task-%control-TypeTask     = if_abap_behv=>mk-on.
+      gs_create_task-%control-Priority     = if_abap_behv=>mk-on.
+      gs_create_task-%control-DueDate      = if_abap_behv=>mk-on.
+      gs_create_task-%control-CreatedBy    = if_abap_behv=>mk-on.
+      gs_create_task-%control-ClosedBy     = if_abap_behv=>mk-on.
+      gs_create_task-%control-CreationDate = if_abap_behv=>mk-on.
+      gs_create_task-%control-CloseDate    = if_abap_behv=>mk-on.
       APPEND gs_create_task TO gt_create_tasks.
     ENDDO.
 
@@ -279,7 +302,6 @@ CLASS zcl_if_tasks_runtest IMPLEMENTATION.
       gs_result-rc       = 1.
       gs_result-mensagem = 'Impossible to Create Tasks by CDS.'.
     ENDIF.
-
   ENDMETHOD.
 
   METHOD read_task.
@@ -325,13 +347,21 @@ CLASS zcl_if_tasks_runtest IMPLEMENTATION.
     "fill database table with tasks
     DATA: ls_task TYPE ztable_task.
     DATA: lt_tasks TYPE TABLE OF ztable_task.
+    DATA: lv_date TYPE datum.
 
     DELETE FROM ztable_task.
     LOOP AT lt_index INTO DATA(index).
-      ls_task-project_id  = go_projects->get_project_id( ).
-      ls_task-task_id     = go_projects->generate_uuid( ).
-      ls_task-description = | Task { index } |.
-      ls_task-done        = abap_false.
+      ls_task-project_id   = go_projects->get_project_id( ).
+      ls_task-task_id      = go_projects->generate_uuid( ).
+      ls_task-description  = | Task { index } |.
+      ls_task-done         = abap_false.
+      ls_task-typetask     = 'Reparation'.
+      ls_task-priority     = 'Low'.
+      ls_task-due_date     = '20251231'.
+      ls_task-createdby    = cl_abap_context_info=>get_user_technical_name( ).
+      ls_task-closedby     = ''.
+      ls_task-creationdate = cl_abap_context_info=>get_system_date( ).
+*      gs_create_task-CloseDate    = ''.
       APPEND ls_task TO lt_tasks.
     ENDLOOP.
     MODIFY ztable_task FROM TABLE @lt_tasks.
