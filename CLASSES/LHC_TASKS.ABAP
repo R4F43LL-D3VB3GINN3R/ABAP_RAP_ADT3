@@ -29,7 +29,7 @@ CLASS lhc_Tasks IMPLEMENTATION.
       SET FIELDS WITH VALUE #( (
         %tky-Id_Task         = ls_task-ID_Task
         %tky-ID_Project      = ls_task-ID_Project
-        Done                 = abap_false
+        Done                 = ' '
         Description          = |Task reopened at { sy-datum } { sy-uzeit }|
         %control-Done        = if_abap_behv=>mk-on
         %control-Description = if_abap_behv=>mk-on
@@ -58,6 +58,8 @@ CLASS lhc_Tasks IMPLEMENTATION.
             %tky-Id_Task    = ls_task-ID_Task
             %tky-ID_Project = ls_task-ID_Project
             Done            = abap_true
+            CloseDate       = cl_abap_context_info=>get_system_date( )
+            ClosedBy        = cl_abap_context_info=>get_user_technical_name( )
           ) ).
         ENDIF.
       ENDLOOP.
