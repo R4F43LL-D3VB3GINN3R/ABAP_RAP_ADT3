@@ -178,6 +178,44 @@ CLASS lhc_Tasks IMPLEMENTATION.
 
   METHOD on_error_values.
 
+    READ ENTITY IN LOCAL MODE zdd_r_tasks
+    ALL FIELDS WITH CORRESPONDING #( keys )
+    RESULT DATA(lt_tasks).
+
+    CHECK lt_tasks IS NOT INITIAL.
+    READ TABLE lt_tasks INTO DATA(ls_task) INDEX 1.
+
+    "DONE
+    "------------------------------------------------
+    IF ls_task-Done NE '-' AND ls_task-Done NE 'X'.
+    ENDIF.
+
+    "PRIORITY
+    "------------------------------------------------
+    DATA lt_priorities TYPE STANDARD TABLE OF string.
+    lt_priorities = VALUE #(
+                              ( CONV string( 'Stand-By' ) )
+                              ( CONV string( 'Low' ) )
+                              ( CONV string( 'Medium' ) )
+                              ( CONV string( 'High' ) )
+                              ( CONV string( 'Critical' ) )
+                              ( CONV string( 'Await' ) )
+                            ).
+    IF NOT line_exists( lt_priorities[ table_line = ls_task-priority ] ).
+    ENDIF.
+
+    "TYPE TASK
+    "------------------------------------------------
+    DATA: lt_typetask TYPE STANDARD TABLE OF string.
+    lt_typetask = VALUE #(
+                          ( CONV string( 'Bug' ) )
+                          ( CONV string( 'Feature' ) )
+                          ( CONV string( 'Improvement' ) )
+                          ( CONV string( 'Maintenance' ) )
+                          ( CONV string( 'Support' ) )
+                        ).
+    IF NOT line_exists( lt_typetask[ table_line = ls_task-TypeTask ] ).
+    ENDIF.
 
   ENDMETHOD.
 
