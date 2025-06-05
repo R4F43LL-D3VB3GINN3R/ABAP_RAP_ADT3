@@ -16,11 +16,23 @@ authorization master ( instance )
   action close_task;
   action reopen_task;
 
+  determination on_task_progress on modify { update; }
+  determination on_empty_values on modify { create; }
+
+  validation on_error_values on save { field Done, TypeTask, Priority; create; update; }
+
   mapping for ztable_task corresponding
     {
-        ID_Project  = project_id;
-        ID_Task     = task_id;
-        Description = description;
-        Done        = done;
+        ID_Project   = project_id;
+        ID_Task      = task_id;
+        Description  = description;
+        Done         = done;
+        DueDate      = due_date;
+        CloseDate    = closedate;
+        ClosedBy     = closedby;
+        CreatedBy    = createdby;
+        CreationDate = creationdate;
+        Priority     = priority;
+        TypeTask     = typetask;
     }
 }
