@@ -188,6 +188,13 @@ CLASS lhc_Tasks IMPLEMENTATION.
     "DONE
     "------------------------------------------------
     IF ls_task-Done NE '-' AND ls_task-Done NE 'X'.
+        APPEND VALUE #( %tky = ls_task-%tky ) TO failed-tasks.
+        APPEND VALUE #( %tky = keys[ 1 ]-%tky
+            %msg = new_message_with_text(
+                severity = if_abap_behv_message=>severity-error
+                text     = 'Invalid Value to Field Done'
+            ) )
+        TO reported-tasks.
     ENDIF.
 
     "PRIORITY
@@ -202,6 +209,13 @@ CLASS lhc_Tasks IMPLEMENTATION.
                               ( CONV string( 'Await' ) )
                             ).
     IF NOT line_exists( lt_priorities[ table_line = ls_task-priority ] ).
+        APPEND VALUE #( %tky = ls_task-%tky ) TO failed-tasks.
+        APPEND VALUE #( %tky = keys[ 1 ]-%tky
+            %msg = new_message_with_text(
+                severity = if_abap_behv_message=>severity-error
+                text     = 'Invalid Value to Field Priority'
+            ) )
+        TO reported-tasks.
     ENDIF.
 
     "TYPE TASK
@@ -215,6 +229,13 @@ CLASS lhc_Tasks IMPLEMENTATION.
                           ( CONV string( 'Support' ) )
                         ).
     IF NOT line_exists( lt_typetask[ table_line = ls_task-TypeTask ] ).
+        APPEND VALUE #( %tky = ls_task-%tky ) TO failed-tasks.
+        APPEND VALUE #( %tky = keys[ 1 ]-%tky
+            %msg = new_message_with_text(
+                severity = if_abap_behv_message=>severity-error
+                text     = 'Invalid Value to Field TypeTask'
+            ) )
+        TO reported-tasks.
     ENDIF.
 
   ENDMETHOD.
