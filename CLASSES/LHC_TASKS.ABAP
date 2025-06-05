@@ -159,7 +159,15 @@ CLASS lhc_Tasks IMPLEMENTATION.
                       Priority
                       TypeTask )
       WITH VALUE #( ( %tky-Id_Task    = ls_tasks-ID_Task
-                      %tky-ID_Project = ls_tasks-ID_Project ) ).
+                      %tky-ID_Project = ls_tasks-ID_Project
+                      Done            = ls_tasks-Done
+                      DueDate         = ls_tasks-DueDate
+                      CloseDate       = ls_tasks-CloseDate
+                      ClosedBy        = ls_tasks-ClosedBy
+                      CreatedBy       = ls_tasks-CreatedBy
+                      CreationDate    = ls_tasks-CreationDate
+                      Priority        = ls_tasks-Priority
+                      TypeTask        = ls_tasks-TypeTask ) ).
     ENDLOOP.
 
   ENDMETHOD.
