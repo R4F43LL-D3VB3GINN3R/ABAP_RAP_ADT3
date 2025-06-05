@@ -11,6 +11,8 @@ CLASS lhc_Tasks DEFINITION INHERITING FROM cl_abap_behavior_handler.
       IMPORTING keys FOR tasks~on_task_progress.
     METHODS on_empty_values FOR DETERMINE ON MODIFY
       IMPORTING keys FOR tasks~on_empty_values.
+    METHODS on_error_values FOR VALIDATE ON SAVE
+      IMPORTING keys FOR tasks~on_error_values.
 
 ENDCLASS.
 
@@ -171,6 +173,11 @@ CLASS lhc_Tasks IMPLEMENTATION.
                       Priority        = ls_tasks-Priority
                       TypeTask        = ls_tasks-TypeTask ) ).
     ENDLOOP.
+
+  ENDMETHOD.
+
+  METHOD on_error_values.
+
 
   ENDMETHOD.
 
