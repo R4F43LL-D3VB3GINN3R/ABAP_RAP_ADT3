@@ -68,7 +68,6 @@ CLASS lhc_Tasks IMPLEMENTATION.
 
     CHECK lt_tasks IS NOT INITIAL.
     LOOP AT lt_tasks ASSIGNING FIELD-SYMBOL(<ls_tasks>).
-
       "in opened project
       IF <ls_tasks>-Done EQ '-'.
         UPDATE ztable_task
@@ -76,7 +75,6 @@ CLASS lhc_Tasks IMPLEMENTATION.
             closedby  = '00000000'
         WHERE task_id = @<ls_tasks>-ID_Task.
       ENDIF.
-
       "in closed project
       IF <ls_tasks>-Done EQ 'X'.
         DATA(lv_closedate2) = cl_abap_context_info=>get_system_date( ).
@@ -101,16 +99,18 @@ CLASS lhc_Tasks IMPLEMENTATION.
     LOOP AT lt_tasks INTO DATA(ls_tasks).
       "DESCRIPTION
       "-----------
-      IF ls_tasks-description IS INITIAL.
+      IF ls_tasks-Description IS INITIAL.
         SELECT * FROM ztable_task INTO TABLE @DATA(tasks).
         DATA(total_lines) = lines( tasks ).
         total_lines = total_lines + 1.
-        ls_tasks-description = | Task { total_lines } |.
+        ls_tasks-Description = | Task { total_lines } |.
       ENDIF.
       "DONE
       "-----------
-      IF ls_tasks-done EQ 'X'.
-        ls_tasks-done = ' '.
+      IF ls_tasks-Done EQ 'X'.
+        ls_tasks-Done = ' '.
+      ELSEIF ls_tasks-Done IS INITIAL.
+        ls_tasks-Done = '-'.
       ENDIF.
       "DUE DATE
       "-----------
@@ -151,6 +151,7 @@ CLASS lhc_Tasks IMPLEMENTATION.
       MODIFY ENTITIES OF zdd_r_tasks IN LOCAL MODE
       ENTITY tasks
       UPDATE FIELDS ( Done
+                      Description
                       DueDate
                       CloseDate
                       ClosedBy
@@ -161,6 +162,7 @@ CLASS lhc_Tasks IMPLEMENTATION.
       WITH VALUE #( ( %tky-Id_Task    = ls_tasks-ID_Task
                       %tky-ID_Project = ls_tasks-ID_Project
                       Done            = ls_tasks-Done
+                      Description     = ls_tasks-Description
                       DueDate         = ls_tasks-DueDate
                       CloseDate       = ls_tasks-CloseDate
                       ClosedBy        = ls_tasks-ClosedBy
